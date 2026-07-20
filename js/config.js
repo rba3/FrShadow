@@ -111,9 +111,8 @@ const CONFIG = {
    *  Escala 0–5 (misma que niveles de madurez).
    * ------------------------------------------------------------------ */
   COMPETENCIAS: [
-    { key: 'playwright', nombre: 'Playwright', esperado: 4 },
-    { key: 'jmeter',     nombre: 'JMeter',     esperado: 3 },
-    { key: 'elastic',    nombre: 'Elastic',    esperado: 3 }
+    { key: 'jmeter',  nombre: 'JMeter',  esperado: 3 },
+    { key: 'elastic', nombre: 'Elastic', esperado: 3 }
   ],
 
   /* ------------------------------------------------------------------ *
