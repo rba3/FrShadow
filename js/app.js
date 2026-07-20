@@ -246,7 +246,7 @@
     CONFIG.RUBROS.forEach(function (r) {
       const v = d.rubros[r.key];
       sc += '<tr>';
-      sc += '<td>' + esc(r.nombre) + '</td>';
+      sc += '<td>' + esc(r.nombre) + '<span class="rubro-crit">' + esc(r.criterio || '') + '</span></td>';
       sc += '<td class="num">' + r.peso + '%</td>';
       sc += '<td><div class="estado-cell">'
         + '<input type="range" min="0" max="100" step="5" data-rubro="' + r.key + '" value="' + (v == null ? 0 : num(v)) + '" ' + (v == null ? 'disabled' : '') + '>'
@@ -257,16 +257,27 @@
       sc += '</tr>';
     });
     sc += '</tbody></table>';
-    html += bloque('Scorecard de Shadow', sc);
+    let guiaSc = '<ul class="guia-list">';
+    CONFIG.RUBROS.forEach(function (r) {
+      guiaSc += '<li><strong>' + esc(r.nombre) + ' (' + r.peso + '%)</strong> — ' + esc(r.criterio || '')
+        + '<span class="guia-esc">' + esc(r.guia || '') + '</span></li>';
+    });
+    guiaSc += '</ul>';
+    html += bloque('Scorecard de Shadow', sc, CONFIG.MODULOS.scorecard, guiaSc);
 
     /* Nivel de madurez */
     let mad = '<div class="madurez">';
     CONFIG.NIVELES_MADUREZ.forEach(function (n) {
-      mad += '<label class="mad-opt"><input type="radio" name="madurez" value="' + n.nivel + '" ' + (num(d.madurez) === n.nivel ? 'checked' : '') + '>'
+      mad += '<label class="mad-opt" title="' + esc(n.ejemplo || '') + '"><input type="radio" name="madurez" value="' + n.nivel + '" ' + (num(d.madurez) === n.nivel ? 'checked' : '') + '>'
         + '<span class="mad-n">' + n.nivel + '</span><span class="mad-d">' + esc(n.desc) + '</span></label>';
     });
     mad += '</div>';
-    html += bloque('Nivel de madurez', mad);
+    let guiaMad = '<ul class="guia-list">';
+    CONFIG.NIVELES_MADUREZ.forEach(function (n) {
+      guiaMad += '<li><strong>' + n.nivel + ' — ' + esc(n.desc) + '</strong>: ' + esc(n.ejemplo || '') + '</li>';
+    });
+    guiaMad += '</ul>';
+    html += bloque('Nivel de madurez', mad, CONFIG.MODULOS.madurez, guiaMad);
 
     /* Competencias */
     let comp = '<table class="tabla mini-tabla"><thead><tr><th>Competencia</th><th class="num">Esperado</th><th class="num">Actual</th><th class="num">Gap</th></tr></thead><tbody>';
@@ -279,11 +290,13 @@
       comp += '<td class="num gap" data-gap="' + c.key + '">' + (c.esperado - actual) + '</td></tr>';
     });
     comp += '</tbody></table>';
-    html += bloque('Matriz de competencias', comp);
+    let guiaComp = '<p><strong>Escala 0–5:</strong> ' + esc(CONFIG.ESCALA_COMPETENCIA) + '</p>'
+      + '<p>El <strong>nivel esperado</strong> lo define el rol (viene precargado). Captura el <strong>nivel actual</strong> observado y el <strong>gap</strong> se calcula solo: si es &gt; 0, hay brecha por cerrar.</p>';
+    html += bloque('Matriz de competencias', comp, CONFIG.MODULOS.competencias, guiaComp);
 
     /* Checklist */
     let chk = '<table class="tabla mini-tabla check"><thead><tr><th>Actividad</th>';
-    CONFIG.FASES_CHECKLIST.forEach(function (f) { chk += '<th class="num">' + esc(f.nombre) + '</th>'; });
+    CONFIG.FASES_CHECKLIST.forEach(function (f) { chk += '<th class="num" title="' + esc(f.desc || '') + '">' + esc(f.nombre) + '</th>'; });
     chk += '</tr></thead><tbody>';
     CONFIG.ACTIVIDADES.forEach(function (act) {
       chk += '<tr><td>' + esc(act) + '</td>';
@@ -294,7 +307,12 @@
       chk += '</tr>';
     });
     chk += '</tbody></table>';
-    html += bloque('Checklist por actividad', chk);
+    let guiaChk = '<ul class="guia-list">';
+    CONFIG.FASES_CHECKLIST.forEach(function (f) {
+      guiaChk += '<li><strong>' + esc(f.nombre) + '</strong>: ' + esc(f.desc || '') + '</li>';
+    });
+    guiaChk += '</ul>';
+    html += bloque('Checklist por actividad', chk, CONFIG.MODULOS.checklist, guiaChk);
 
     /* KPIs manuales */
     let kp = '<div class="kpi-manual">';
@@ -303,7 +321,13 @@
         + '<input type="number" min="0" step="1" data-kpi="' + k.key + '" value="' + esc(d.kpis[k.key] != null ? d.kpis[k.key] : '') + '"></label>';
     });
     kp += '</div>';
-    html += bloque('KPIs manuales', kp);
+    let guiaKpi = '<ul class="guia-list">';
+    CONFIG.KPIS.forEach(function (k) {
+      guiaKpi += '<li><strong>' + esc(k.nombre) + '</strong> — ' + esc(k.formula) + ' · meta ' + esc(k.meta)
+        + ' <span class="guia-esc">' + (k.tipo === 'auto' ? 'Se calcula solo desde el checklist / scorecard.' : 'Captura manual.') + '</span></li>';
+    });
+    guiaKpi += '</ul>';
+    html += bloque('KPIs manuales', kp, CONFIG.MODULOS.kpis, guiaKpi);
 
     html += '</form>';
 
@@ -413,8 +437,12 @@
     refrescar();
   }
 
-  function bloque(titulo, contenido) {
-    return '<section class="card bloque"><h2>' + esc(titulo) + '</h2>' + contenido + '</section>';
+  function bloque(titulo, contenido, desc, guiaHtml) {
+    let h = '<section class="card bloque"><h2>' + esc(titulo) + '</h2>';
+    if (desc) h += '<p class="bloque-desc">' + esc(desc) + '</p>';
+    if (guiaHtml) h += '<details class="guia"><summary>Guía de evaluación — criterios y ejemplos</summary><div class="guia-body">' + guiaHtml + '</div></details>';
+    h += contenido + '</section>';
+    return h;
   }
   function campo(name, label, tipo, val) {
     return '<label class="campo"><span>' + esc(label) + '</span><input name="' + name + '" type="' + tipo + '" value="' + esc(val || '') + '"></label>';

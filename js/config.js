@@ -30,13 +30,41 @@ const CONFIG = {
    *  Cada rubro se captura como % (0–100) o queda "Pendiente".
    * ------------------------------------------------------------------ */
   RUBROS: [
-    { key: 'asistencia',        nombre: 'Asistencia al Shadow',      peso: 10, evidencia: 'Calendario' },
-    { key: 'comprension',       nombre: 'Comprensión funcional',     peso: 20, evidencia: 'Quiz / entrevista' },
-    { key: 'ejec_guiada',       nombre: 'Ejecución guiada',          peso: 20, evidencia: 'Demostración' },
-    { key: 'ejec_independiente',nombre: 'Ejecución independiente',   peso: 20, evidencia: 'Caso práctico' },
-    { key: 'documentacion',     nombre: 'Documentación actualizada', peso: 10, evidencia: 'Wiki / Git' },
-    { key: 'incidentes',        nombre: 'Resolución de incidentes',  peso: 10, evidencia: 'Ticket' },
-    { key: 'reverse',           nombre: 'Reverse Shadow',            peso: 10, evidencia: 'Sesión' }
+    {
+      key: 'asistencia', nombre: 'Asistencia al Shadow', peso: 10, evidencia: 'Calendario',
+      criterio: 'Presencia real y puntual en las sesiones de shadow agendadas.',
+      guia: '0% = no asistió · 50% = asistió a la mitad de las sesiones · 100% = asistió a todas. Evidencia: calendario / registro de asistencia.'
+    },
+    {
+      key: 'comprension', nombre: 'Comprensión funcional', peso: 20, evidencia: 'Quiz / entrevista',
+      criterio: 'Entiende el propósito, el flujo y las reglas de negocio del proceso.',
+      guia: 'Se mide con quiz o entrevista. 100% = explica el flujo completo sin ayuda · 60% = lo explica con dudas menores · <50% = no logra describir el proceso.'
+    },
+    {
+      key: 'ejec_guiada', nombre: 'Ejecución guiada', peso: 20, evidencia: 'Demostración',
+      criterio: 'Ejecuta el proceso mientras el mentor observa o guía.',
+      guia: '100% = ejecuta todos los pasos con guía mínima · 50% = requiere correcciones frecuentes · <30% = no completa la ejecución guiada.'
+    },
+    {
+      key: 'ejec_independiente', nombre: 'Ejecución independiente', peso: 20, evidencia: 'Caso práctico',
+      criterio: 'Resuelve un caso real por su cuenta, sin ayuda del mentor.',
+      guia: '100% = resuelve el caso sin intervención · 70% = termina con 1–2 consultas · <50% = necesita apoyo constante.'
+    },
+    {
+      key: 'documentacion', nombre: 'Documentación actualizada', peso: 10, evidencia: 'Wiki / Git',
+      criterio: 'Mantiene runbooks, wiki o repos actualizados por su cuenta.',
+      guia: '100% = documentación completa y al día · 50% = parcial o desactualizada · 0% = sin documentar. Evidencia: enlace a Wiki/Git.'
+    },
+    {
+      key: 'incidentes', nombre: 'Resolución de incidentes', peso: 10, evidencia: 'Ticket',
+      criterio: 'Detecta, diagnostica y resuelve incidencias del proceso.',
+      guia: 'Se mide con tickets reales. 100% = resolvió sin escalar · 60% = resolvió con apoyo · <50% = escaló todo sin diagnóstico propio.'
+    },
+    {
+      key: 'reverse', nombre: 'Reverse Shadow', peso: 10, evidencia: 'Sesión',
+      criterio: 'La persona invierte el rol: enseña y guía a alguien más.',
+      guia: '100% = condujo una sesión completa enseñando el proceso · 50% = enseñó parte con apoyo · Pendiente = aún no ocurre.'
+    }
   ],
 
   /* ------------------------------------------------------------------ *
@@ -57,13 +85,25 @@ const CONFIG = {
    *  Niveles de madurez (0–5). Similar al concepto de capacidad ISO 330xx.
    * ------------------------------------------------------------------ */
   NIVELES_MADUREZ: [
-    { nivel: 0, desc: 'No iniciado' },
-    { nivel: 1, desc: 'Observó (Shadow)' },
-    { nivel: 2, desc: 'Ejecuta con ayuda' },
-    { nivel: 3, desc: 'Ejecuta solo' },
-    { nivel: 4, desc: 'Optimiza' },
-    { nivel: 5, desc: 'Enseña (Reverse Shadow)' }
+    { nivel: 0, desc: 'No iniciado',            ejemplo: 'Aún no participa en el proceso.' },
+    { nivel: 1, desc: 'Observó (Shadow)',       ejemplo: 'Vio al experto ejecutar, sin operar todavía.' },
+    { nivel: 2, desc: 'Ejecuta con ayuda',      ejemplo: 'Opera el proceso con el mentor guiando cada paso.' },
+    { nivel: 3, desc: 'Ejecuta solo',           ejemplo: 'Resuelve casos reales sin ayuda.' },
+    { nivel: 4, desc: 'Optimiza',               ejemplo: 'Mejora el proceso, detecta y previene fallos.' },
+    { nivel: 5, desc: 'Enseña (Reverse Shadow)',ejemplo: 'Capacita a otros y certifica el proceso.' }
   ],
+
+  /* Escala compartida para la matriz de competencias (0–5) */
+  ESCALA_COMPETENCIA: '0 = sin conocimiento · 1 = básico/teórico · 2 = usa con ayuda · 3 = autónomo · 4 = avanzado/optimiza · 5 = experto/enseña',
+
+  /* Descripción corta de cada módulo del formulario (siempre visible bajo el título) */
+  MODULOS: {
+    scorecard:   'Evalúa 7 dimensiones ponderadas del shadow. Asigna un % a cada rubro según la evidencia; el peso refleja su importancia en el Score total.',
+    madurez:     'Ubica a la persona en la escala de capacidad (estilo ISO/IEC 330xx), desde solo observar (1) hasta enseñar el proceso (5).',
+    competencias:'Compara el nivel esperado del rol contra el nivel actual por herramienta. El gap indica cuánto falta por cerrar.',
+    checklist:   'Marca qué actividades ya domina en cada fase de la transición. De aquí salen los KPIs de avance.',
+    kpis:        'Indicadores de avance y riesgo. Los de fórmula se calculan solos desde el checklist y el scorecard; los manuales los capturas tú.'
+  },
 
   /* ------------------------------------------------------------------ *
    *  Matriz de competencias. El nivel esperado viene precargado de aquí;
@@ -82,10 +122,10 @@ const CONFIG = {
    * ------------------------------------------------------------------ */
   ACTIVIDADES: ['Instalación', 'Configuración', 'Ejecución', 'Análisis', 'Reporte'],
   FASES_CHECKLIST: [
-    { key: 'shadow',        nombre: 'Shadow' },
-    { key: 'practica',      nombre: 'Práctica' },
-    { key: 'independiente', nombre: 'Independiente' },
-    { key: 'reverse',       nombre: 'Reverse' }
+    { key: 'shadow',        nombre: 'Shadow',        desc: 'Observó cómo se hace.' },
+    { key: 'practica',      nombre: 'Práctica',      desc: 'Lo hizo en un entorno de práctica.' },
+    { key: 'independiente', nombre: 'Independiente', desc: 'Lo hizo solo en un caso real.' },
+    { key: 'reverse',       nombre: 'Reverse',       desc: 'Se lo enseñó a alguien más.' }
   ],
 
   /* ------------------------------------------------------------------ *

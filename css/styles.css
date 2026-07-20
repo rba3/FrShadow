@@ -170,6 +170,22 @@ h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color:
 .fase-n { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: var(--azul); color: #fff; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; }
 .hoja-foot { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--linea); color: var(--gris); font-size: .75rem; }
 
+/* ---------- descripciones y guías por módulo ---------- */
+.bloque-desc { color: var(--gris); font-size: .85rem; margin: -.3rem 0 .8rem; }
+details.guia { margin: 0 0 1rem; border: 1px solid var(--linea); border-radius: 8px; background: #f7f9ff; overflow: hidden; }
+details.guia > summary { cursor: pointer; padding: .55rem .8rem; font-size: .82rem; font-weight: 600; color: var(--azul); list-style: none; user-select: none; }
+details.guia > summary::-webkit-details-marker { display: none; }
+details.guia > summary::before { content: '▸ '; color: var(--azul-claro); }
+details.guia[open] > summary::before { content: '▾ '; }
+details.guia[open] > summary { border-bottom: 1px solid var(--linea); }
+.guia-body { padding: .7rem .9rem; font-size: .83rem; color: var(--tinta); }
+.guia-body p { margin: 0 0 .5rem; }
+.guia-list { list-style: none; padding: 0; margin: 0; }
+.guia-list li { padding: .4rem 0; border-bottom: 1px dashed var(--linea); }
+.guia-list li:last-child { border-bottom: none; }
+.guia-esc { display: block; color: var(--gris); font-size: .78rem; margin-top: .15rem; }
+.rubro-crit { display: block; color: var(--gris); font-size: .74rem; font-weight: 400; margin-top: .15rem; line-height: 1.25; }
+
 /* ---------- pantalla de bloqueo ---------- */
 .bloqueo { max-width: 460px; margin: 3rem auto; text-align: center; background: var(--card); border: 1px solid var(--linea); border-radius: var(--radio); box-shadow: var(--sombra); padding: 2.5rem 2rem; }
 .bloqueo h1 { font-size: 1.4rem; margin-bottom: .6rem; }
