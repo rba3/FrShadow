@@ -20,7 +20,7 @@ const CONFIG = {
    * ------------------------------------------------------------------ */
   GITHUB: {
     owner: 'rba3',
-    repo: 'FrShadow',
+    repo: 'FrShadow-data',
     branch: 'main',
     path: 'data/evaluaciones.json'
   },

@@ -17,27 +17,31 @@ Marco de referencia: **ISO/IEC 330xx (SPICE)**, **ISO 9001:2015**, **ITIL 4** y 
   **checklist por actividad** y **KPIs**.
 - **Semáforo**: TRI ≥ 90 listo para transición · 75–89 requiere acompañamiento · < 75 continuar Shadow.
 
-## Cómo funciona el almacenamiento (sin base de datos)
+## Arquitectura (herramienta privada del administrador)
 
-Los datos viven en un JSON **dentro del propio repo**: [`data/evaluaciones.json`](data/evaluaciones.json).
+Dos repos:
 
-- **Ver el dashboard es abierto**: cualquiera con el link lee ese JSON (repo público).
-- **Crear / editar / borrar** hace un **commit real** de ese JSON vía la API de GitHub,
-  así queda historial auditable de cada cambio. No hay servidor ni base de datos externa.
+- **`rba3/FrShadow`** (público) — solo el código del sitio (GitHub Pages gratis).
+- **`rba3/FrShadow-data`** (privado) — las evaluaciones en `data/evaluaciones.json`.
 
-Para editar necesitas conectar **una vez** un token personal de GitHub con permiso de
-escritura en este repo. El token se guarda **solo en tu navegador** (localStorage) y
-**nunca se sube al repo**.
+La app entera está **detrás del token**: sin token no se ve ni se captura nada
+(pantalla de bloqueo). Como los datos viven en un repo **privado**, nadie sin el
+token puede leerlos — el dashboard es realmente privado, no un candado cosmético.
 
-## Conectar tu token (para editar)
+Cada guardado hace un **commit real** en el repo de datos vía la API de GitHub, así
+queda historial auditable. No hay servidor ni base de datos externa.
 
-1. En la app, entra a **Acceso**.
-2. Abre [GitHub → Fine-grained tokens](https://github.com/settings/personal-access-tokens/new).
-3. En **Repository access** elige “Only select repositories” y selecciona `rba3/FrShadow`.
-4. En **Permissions → Repository permissions**, pon **Contents: Read and write**.
-5. Genera el token, pégalo en la pantalla de **Acceso** y da “Guardar y validar”.
+## Puesta en marcha
 
-El banner superior pasará a “Modo editor”. Quien no tenga token queda en “Solo lectura”.
+1. Crea el repo privado **`rba3/FrShadow-data`** (inicialízalo con un README para
+   que exista la rama `main`).
+2. Genera un token en [GitHub → Fine-grained tokens](https://github.com/settings/personal-access-tokens/new):
+   - **Repository access** → “Only select repositories” → **`rba3/FrShadow-data`**.
+   - **Permissions → Repository permissions → Contents: Read and write**.
+3. En la app, entra a **Acceso**, pega el token y da “Guardar y validar”.
+
+El banner pasará a **“Modo administrador”** y tendrás acceso completo. El token se
+guarda **solo en tu navegador** (localStorage) y nunca se sube a ningún repo.
 
 ## Editar el modelo de evaluación
 

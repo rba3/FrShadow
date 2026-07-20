@@ -109,10 +109,10 @@
   function pintarBanner() {
     if (Store.modo === 'editor') {
       modoBanner.className = 'modo-banner nube';
-      modoBanner.innerHTML = 'Modo editor: tus cambios se guardan en el repo (data/evaluaciones.json) como commit. <a href="#/acceso">Administrar acceso</a>';
+      modoBanner.innerHTML = 'Modo administrador: acceso completo. Tus cambios se guardan como commit en el repo privado de datos. <a href="#/acceso">Administrar acceso</a>';
     } else {
       modoBanner.className = 'modo-banner local';
-      modoBanner.innerHTML = 'Solo lectura: puedes ver el dashboard, pero para crear o editar necesitas conectar tu token de GitHub. <a href="#/acceso">Conectar acceso</a>';
+      modoBanner.innerHTML = 'Herramienta privada: conecta tu token de administrador para acceder. <a href="#/acceso">Conectar acceso</a>';
     }
   }
 
@@ -560,8 +560,8 @@
     const owner = CONFIG.GITHUB.owner, repo = CONFIG.GITHUB.repo;
     const tokenUrl = 'https://github.com/settings/personal-access-tokens/new';
     let h = '';
-    h += '<section class="page-head"><div><h1>Acceso de editor</h1>';
-    h += '<p class="sub">Ver el dashboard es abierto. Para crear, editar o borrar evaluaciones necesitas un token de GitHub con permiso de escritura en este repo.</p></div>';
+    h += '<section class="page-head"><div><h1>Acceso de administrador</h1>';
+    h += '<p class="sub">Esta herramienta es privada. Conecta tu token de GitHub para ver el dashboard y capturar evaluaciones. Sin token no hay acceso.</p></div>';
     h += '<a class="btn ghost" href="#/">Volver</a></section>';
 
     h += '<section class="card" style="max-width:640px">';
@@ -614,11 +614,26 @@
     if (!el) return;
     if (Store.tieneToken()) {
       el.className = 'estado-acceso ok';
-      el.innerHTML = '<span class="dot"></span> Conectado — modo editor activo en este navegador.';
+      el.innerHTML = '<span class="dot"></span> Conectado — modo administrador activo en este navegador.';
     } else {
       el.className = 'estado-acceso off';
-      el.innerHTML = '<span class="dot"></span> No conectado — solo lectura.';
+      el.innerHTML = '<span class="dot"></span> No conectado — sin acceso.';
     }
+  }
+
+  /* =========================================================
+   *  Vista: Bloqueado (sin token = sin acceso)
+   * ========================================================= */
+  function vistaBloqueado() {
+    let h = '';
+    h += '<section class="bloqueo">';
+    h += '<div class="bloqueo-icono"><span></span></div>';
+    h += '<h1>Herramienta privada</h1>';
+    h += '<p>Este panel de preparación para la transición es de uso exclusivo del administrador. ';
+    h += 'Conecta tu token de GitHub para ver el dashboard y capturar evaluaciones.</p>';
+    h += '<a class="btn primary" href="#/acceso">Conectar acceso</a>';
+    h += '</section>';
+    app.innerHTML = h;
   }
 
   /* =========================================================
@@ -628,11 +643,20 @@
     const h = location.hash || '#/';
     const m = h.match(/^#\/eval\/(.+)$/);
     const p = h.match(/^#\/print\/(.+)$/);
-    if (h === '#/nueva') vistaForm(null);
-    else if (h === '#/acceso') vistaAcceso();
-    else if (m) vistaForm(m[1]);
-    else if (p) vistaPrint(p[1]);
-    else vistaDashboard();
+    if (h === '#/acceso') {
+      vistaAcceso();
+    } else if (!Store.tieneToken()) {
+      // Sin token no hay acceso a ninguna vista (herramienta privada del admin)
+      vistaBloqueado();
+    } else if (h === '#/nueva') {
+      vistaForm(null);
+    } else if (m) {
+      vistaForm(m[1]);
+    } else if (p) {
+      vistaPrint(p[1]);
+    } else {
+      vistaDashboard();
+    }
     pintarBanner();
     window.scrollTo(0, 0);
   }
