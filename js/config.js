@@ -111,8 +111,9 @@ const CONFIG = {
    *  Escala 0–5 (misma que niveles de madurez).
    * ------------------------------------------------------------------ */
   COMPETENCIAS: [
-    { key: 'jmeter',  nombre: 'JMeter',  esperado: 3 },
-    { key: 'elastic', nombre: 'Elastic', esperado: 3 }
+    { key: 'jmeter',     nombre: 'JMeter',     esperado: 3 },
+    { key: 'blazemeter', nombre: 'BlazeMeter', esperado: 3 },
+    { key: 'elastic',    nombre: 'Elastic',    esperado: 3 }
   ],
 
   /* ------------------------------------------------------------------ *
