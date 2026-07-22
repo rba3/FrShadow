@@ -19,7 +19,7 @@ const CONFIG = {
    *  Cada guardado hace un commit real, así queda historial auditable.
    * ------------------------------------------------------------------ */
   GITHUB: {
-    owner: 'rba3',
+    owner: 'lrbg',
     repo: 'FrShadow-data',
     branch: 'main',
     path: 'data/evaluaciones.json'
