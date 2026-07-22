@@ -111,6 +111,15 @@ h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color:
 .estado-val { min-width: 62px; font-weight: 600; font-size: .82rem; }
 .pend { font-size: .72rem; color: var(--gris); display: flex; align-items: center; gap: .2rem; white-space: nowrap; }
 
+/* sesiones de shadow (Teams) */
+.sesiones td { vertical-align: middle; }
+.sesiones input { width: 100%; border: 1px solid var(--linea); border-radius: 7px; padding: .45rem .55rem; font-size: .9rem; font-family: inherit; }
+.sesiones input:focus { outline: 2px solid var(--azul-claro); border-color: var(--azul-claro); }
+.btn-quitar { border: 1px solid var(--linea); background: #fff; color: var(--gris); border-radius: 7px; width: 30px; height: 30px; line-height: 1; font-size: 1.1rem; cursor: pointer; }
+.btn-quitar:hover { border-color: #c0392b; color: #c0392b; }
+.btn-add-sesion { margin-top: .7rem; }
+.ses-link a { color: var(--azul); word-break: break-all; }
+
 .madurez { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
 .mad-opt { display: flex; align-items: center; gap: .5rem; border: 1px solid var(--linea); border-radius: 8px; padding: .5rem .6rem; cursor: pointer; font-size: .82rem; }
 .mad-opt:has(input:checked) { border-color: var(--azul); background: #f2f6ff; }

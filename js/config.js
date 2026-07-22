@@ -102,7 +102,8 @@ const CONFIG = {
     madurez:     'Ubica a la persona en la escala de capacidad (estilo ISO/IEC 330xx), desde solo observar (1) hasta enseñar el proceso (5).',
     competencias:'Compara el nivel esperado del rol contra el nivel actual por herramienta. El gap indica cuánto falta por cerrar.',
     checklist:   'Marca qué actividades ya domina en cada fase de la transición. De aquí salen los KPIs de avance.',
-    kpis:        'Indicadores de avance y riesgo. Los de fórmula se calculan solos desde el checklist y el scorecard; los manuales los capturas tú.'
+    kpis:        'Indicadores de avance y riesgo. Los de fórmula se calculan solos desde el checklist y el scorecard; los manuales los capturas tú.',
+    sesiones:    'Registro de las sesiones de shadow realizadas por Teams. Sirve como evidencia: cada sesión guarda su fecha, el tema tratado y el enlace a la grabación o reunión de Teams.'
   },
 
   /* ------------------------------------------------------------------ *

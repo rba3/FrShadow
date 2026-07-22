@@ -211,8 +211,21 @@
   function nuevaEvaluacion() {
     return {
       id: null, persona: '', rol: '', evaluador: '', estado: 'borrador',
-      data: { rubros: {}, madurez: 0, competencias: {}, checklist: {}, kpis: {} }
+      data: { rubros: {}, madurez: 0, competencias: {}, checklist: {}, kpis: {}, sesiones: [] }
     };
+  }
+
+  // Garantiza que el objeto data tenga todas sus secciones (compatibilidad con datos viejos).
+  function normalizarData(e) {
+    if (!e.data) e.data = {};
+    const d = e.data;
+    if (!d.rubros) d.rubros = {};
+    if (d.madurez == null) d.madurez = 0;
+    if (!d.competencias) d.competencias = {};
+    if (!d.checklist) d.checklist = {};
+    if (!d.kpis) d.kpis = {};
+    if (!Array.isArray(d.sesiones)) d.sesiones = [];
+    return e;
   }
 
   function vistaForm(id) {
@@ -220,7 +233,7 @@
     app.innerHTML = '<div class="cargando">Cargando…</div>';
     Store.obtener(id).then(function (e) {
       if (!e) { app.innerHTML = '<div class="error">Evaluación no encontrada.</div>'; return; }
-      if (!e.data) e.data = { rubros: {}, madurez: 0, competencias: {}, checklist: {}, kpis: {} };
+      normalizarData(e);
       renderForm(e);
     });
   }
@@ -329,6 +342,15 @@
     guiaKpi += '</ul>';
     html += bloque('KPIs manuales', kp, CONFIG.MODULOS.kpis, guiaKpi);
 
+    /* Sesiones de shadow (Teams) */
+    let ses = '<table class="tabla mini-tabla sesiones"><thead><tr>'
+      + '<th>Fecha</th><th>Tema</th><th>Link de Teams</th><th></th></tr></thead>';
+    ses += '<tbody id="tbody-sesiones">';
+    d.sesiones.forEach(function (s) { ses += filaSesion(s); });
+    ses += '</tbody></table>';
+    ses += '<button type="button" class="btn ghost btn-add-sesion" id="btn-add-sesion">+ Agregar sesión</button>';
+    html += bloque('Sesiones de Shadow (Teams)', ses, CONFIG.MODULOS.sesiones);
+
     html += '</form>';
 
     /* Panel resumen en vivo */
@@ -376,6 +398,15 @@
         const val = k.value;
         work.data.kpis[k.getAttribute('data-kpi')] = val === '' ? null : num(val);
       });
+      // sesiones de shadow (Teams) — se ignoran las filas totalmente vacías
+      const sesiones = [];
+      f.querySelectorAll('[data-sesion-row]').forEach(function (row) {
+        const fecha = (row.querySelector('[data-ses="fecha"]').value || '').trim();
+        const tema = (row.querySelector('[data-ses="tema"]').value || '').trim();
+        const link = (row.querySelector('[data-ses="link"]').value || '').trim();
+        if (fecha || tema || link) sesiones.push({ fecha: fecha, tema: tema, link: link });
+      });
+      work.data.sesiones = sesiones;
     }
 
     function refrescar() {
@@ -399,6 +430,23 @@
     // listeners
     app.querySelector('#f-eval').addEventListener('input', refrescar);
     app.querySelector('#f-eval').addEventListener('change', refrescar);
+
+    // Sesiones: agregar fila nueva
+    app.querySelector('#btn-add-sesion').addEventListener('click', function () {
+      const tbody = document.getElementById('tbody-sesiones');
+      tbody.insertAdjacentHTML('beforeend', filaSesion({}));
+      const fecha = tbody.lastElementChild.querySelector('[data-ses="fecha"]');
+      if (fecha) fecha.focus();
+    });
+    // Sesiones: quitar fila (delegación, porque las filas son dinámicas)
+    app.querySelector('#f-eval').addEventListener('click', function (ev) {
+      const btn = ev.target.closest('[data-ses-del]');
+      if (!btn) return;
+      ev.preventDefault();
+      const row = btn.closest('[data-sesion-row]');
+      if (row) row.parentNode.removeChild(row);
+      refrescar();
+    });
 
     function guardar() {
       recolectar();
@@ -447,6 +495,15 @@
   function campo(name, label, tipo, val) {
     return '<label class="campo"><span>' + esc(label) + '</span><input name="' + name + '" type="' + tipo + '" value="' + esc(val || '') + '"></label>';
   }
+  function filaSesion(s) {
+    s = s || {};
+    return '<tr data-sesion-row>'
+      + '<td><input type="date" data-ses="fecha" value="' + esc(s.fecha || '') + '"></td>'
+      + '<td><input type="text" data-ses="tema" placeholder="Tema de la sesión" value="' + esc(s.tema || '') + '"></td>'
+      + '<td><input type="url" data-ses="link" placeholder="https://teams.microsoft.com/..." value="' + esc(s.link || '') + '"></td>'
+      + '<td class="num"><button type="button" class="btn-quitar" data-ses-del title="Quitar sesión">×</button></td>'
+      + '</tr>';
+  }
 
   function panelResumen(work) {
     const sem = calcSemaforo(work.tri);
@@ -478,7 +535,7 @@
     app.innerHTML = '<div class="cargando">Cargando…</div>';
     Store.obtener(id).then(function (e) {
       if (!e) { app.innerHTML = '<div class="error">Evaluación no encontrada.</div>'; return; }
-      if (!e.data) e.data = { rubros: {}, madurez: 0, competencias: {}, checklist: {}, kpis: {} };
+      normalizarData(e);
       sellar(e);
       renderPrint(e);
     });
@@ -564,6 +621,19 @@
       h += '<tr><td>' + esc(k.nombre) + '</td><td>' + esc(k.formula) + '</td><td class="num">' + esc(r.valor) + '</td><td class="num">' + esc(k.meta) + '</td></tr>';
     });
     h += '</tbody></table>';
+
+    // Sesiones de shadow (Teams) — solo si hay registradas
+    if (e.data.sesiones && e.data.sesiones.length) {
+      h += '<h2 class="hoja-h2">Sesiones de Shadow (Teams)</h2>';
+      h += '<table class="tabla print-tabla"><thead><tr><th>Fecha</th><th>Tema</th><th>Enlace</th></tr></thead><tbody>';
+      e.data.sesiones.forEach(function (s) {
+        const link = s.link
+          ? '<a href="' + esc(s.link) + '" target="_blank" rel="noopener">' + esc(s.link) + '</a>'
+          : '—';
+        h += '<tr><td>' + esc(s.fecha || '—') + '</td><td>' + esc(s.tema || '—') + '</td><td class="ses-link">' + link + '</td></tr>';
+      });
+      h += '</tbody></table>';
+    }
 
     // Fases
     h += '<h2 class="hoja-h2">Fases del proceso</h2>';
